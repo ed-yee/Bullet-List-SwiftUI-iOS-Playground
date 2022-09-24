@@ -3,67 +3,7 @@
 import SwiftUI
 import PlaygroundSupport
 
-struct TabOptions {
-    var alignment: NSTextAlignment
-    var location: CGFloat
-}
-
-/// This define a concept of "margin". It is spacing outside of a View.
-/// It actually wraps a View with HStack and set the padding values
-struct Margin: ViewModifier {
-    let margins: EdgeInsets
-    
-    func body(content: Content) -> some View {
-        HStack(alignment: .top, spacing: 0) {
-            content
-        }.padding(EdgeInsets(top: margins.top,
-                             leading: margins.leading,
-                             bottom: margins.bottom,
-                             trailing: margins.trailing))
-    }
-}
-
 extension View {
-    /// Set margin aginst some of the edges.
-    /// - Parameters:
-    ///   - top: Top margin in points. Default 0.0
-    ///   - right: Right margin in points. Default 0.0
-    ///   - bottom: Bottom margin in points. Default 0.0
-    ///   - left: Left margin in points. Default 0.0
-    /// - Returns: Modified View
-    func margin(top: CGFloat = 0.0,
-                right: CGFloat = 0.0,
-                bottom: CGFloat = 0.0,
-                left: CGFloat = 0.0) -> some View {
-        modifier(Margin(margins: EdgeInsets(top: top,
-                                            leading: left,
-                                            bottom: bottom,
-                                            trailing: right)))
-    }
-    
-    /// Set vertical and/or horizontal maring
-    /// - Parameters:
-    ///   - topBottom: Top and bottom margin in points. Default 0.0
-    ///   - leftRight: Left and right margin in points. Default 0.0
-    /// - Returns: Modified View
-    func margin(topBottom: CGFloat = 0.0,
-                leftRight: CGFloat = 0.0) -> some View {
-        modifier(Margin(margins: EdgeInsets(top: topBottom,
-                                            leading: leftRight,
-                                            bottom: topBottom,
-                                            trailing: leftRight)))
-    }
-    
-    /// Set margin to all sides
-    /// - Parameter all: Margin in points. Default 0.0
-    /// - Returns: A modified View
-    func margin(_ all: CGFloat = 0.0) -> some View {
-        modifier(Margin(margins: EdgeInsets(top: all,
-                                            leading: all,
-                                            bottom: all,
-                                            trailing: all)))
-    }
-    
     /// Set padding to one or more sides
     /// - Parameters:
     ///   - top: Top padding in points. Default 0.0
@@ -95,14 +35,21 @@ extension View {
     }
 }
 
-struct MasterPageView: View {
-    var sampleData: [String] = [
-        "This is list item 1. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec vitae.",
-        "This is list item 2. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec vitae.",
-        "This is list item 3. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec vitae.",
-        "This is list item 4. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec vitae.",
-    ]
+protocol BaseView {
+    var sampleData: [String] { get }
+}
 
+extension BaseView {
+    var sampleData: [String] {
+        get {
+            var array: [String] = []
+            for idx in stride(from: 1, to: 6, by: 1) {
+                array.append("This is list item \(idx). Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec vitae.")
+            }
+            return array
+        }
+    }
+    
     /// Convert number to Roman numerals
     ///
     /// Source:
@@ -132,17 +79,24 @@ struct MasterPageView: View {
     /// Generate a list
     /// - Parameter listItemSpacing: LIst item spacing in points. Default 10.0
     /// - Returns: Simple list
-    @ViewBuilder func simpleList(listItemSpacing: CGFloat = 10.0) -> some View {
+    @ViewBuilder func simpleList(listItemSpacing: CGFloat = 10.0,
+                                 withBorder: Bool = false,
+                                 captionInfiniteWidth ciw: Bool = true
+    ) -> some View {
         VStack(alignment: .leading,
                spacing: listItemSpacing) {
             ForEach(sampleData, id: \.self) { data in
                 Text(data)
+                    .frame(maxWidth: (ciw ? .infinity : nil),
+                           alignment: .leading)
+                    .border(.orange, width: (withBorder ? 1 : 0))
             }
         }
-        .padding(10)
-        .border(.gray, width: 1)
-        .margin(top: 0, right: 20, bottom: 0, left: 20)
+        .padding(1)
+        .border(.green, width: (withBorder ? 1 : 0))
     }
+    
+    
     
     /// Generate a bullet list
     /// - Parameters:
@@ -150,16 +104,21 @@ struct MasterPageView: View {
     ///   - listItemSpacing: Bullet list item spacingi n points. Default 10.0
     /// - Returns: Bullet (unordered) list
     @ViewBuilder func simpleBulletList(leadIcon: String = "•",
-                                       listItemSpacing: CGFloat = 10.0) -> some View {
+                                       listItemSpacing: CGFloat = 10.0,
+                                       withBorder: Bool = false,
+                                       captionInfiniteWidth ciw: Bool = true
+    ) -> some View {
         VStack(alignment: .leading,
                spacing: listItemSpacing) {
             ForEach(sampleData, id: \.self) { data in
                 Text("\(leadIcon)\t\(data)")
+                    .frame(maxWidth: (ciw ? .infinity : nil),
+                           alignment: .leading)
+                    .border(.orange, width: (withBorder ? 1 : 0))
             }
         }
-        .padding(10)
-        .border(.gray, width: 1)
-        .margin(leftRight: 20)
+        .padding(1)
+        .border(.green, width: (withBorder ? 1 : 0))
     }
     
     /// Generate aligned bullet list
@@ -168,9 +127,12 @@ struct MasterPageView: View {
     ///   - listItemSpacing: Bullet list item spacing in points. Default 10.0
     ///   - bulletWidth: Bullet width in points. Default 25.0
     /// - Returns: Bullet (unordered) list
-    @ViewBuilder func alignedBulletList(leadIcon: String = "•",
-                                        listItemSpacing: CGFloat = 10.0,
-                                        bulletWidth: CGFloat = 25.0) -> some View {
+    @ViewBuilder func bulletList(leadIcon: String = "•",
+                                 listItemSpacing: CGFloat = 10.0,
+                                 bulletWidth: CGFloat = 25.0,
+                                 withBorder: Bool = false,
+                                 captionInfiniteWidth ciw: Bool = true
+    ) -> some View {
         VStack(alignment: .leading,
                spacing: listItemSpacing) {
             ForEach(sampleData, id: \.self) { data in
@@ -178,13 +140,18 @@ struct MasterPageView: View {
                     Text(leadIcon)
                         .frame(width: bulletWidth,
                                alignment: .leading)
+                        .border(Color.blue,
+                                width: (withBorder ? 1 : 0))
                     Text(data)
+                        .frame(maxWidth: (ciw ? .infinity : nil),
+                               alignment: .leading)
+                        .border(Color.orange,
+                                width: (withBorder ? 1 : 0))
                 }
             }
         }
-        .padding(10)
-        .border(.gray, width: 1)
-        .margin(leftRight: 20)
+        .padding(1)
+        .border(.green, width: (withBorder ? 1 : 0))
     }
     
     /// Generate numeric bullet list
@@ -197,7 +164,10 @@ struct MasterPageView: View {
     @ViewBuilder func numericList(prefix: String = "",
                                   listItemSpacing: CGFloat = 10.0,
                                   bulletWidth: CGFloat = 30.0,
-                                  alignment: Alignment = .leading) -> some View {
+                                  alignment: Alignment = .leading,
+                                  withBorder: Bool = false,
+                                  captionInfiniteWidth ciw: Bool = true
+    ) -> some View {
         VStack(alignment: .leading,
                spacing: listItemSpacing) {
             ForEach(sampleData.indices, id: \.self) { idx in
@@ -206,13 +176,18 @@ struct MasterPageView: View {
                     Text(stg)
                         .frame(width: bulletWidth,
                                alignment: alignment)
+                        .border(Color.blue,
+                                width: (withBorder ? 1 : 0))
                     Text(sampleData[idx])
+                        .frame(maxWidth: (ciw ? .infinity : nil),
+                               alignment: .leading)
+                        .border(Color.orange,
+                                width: (withBorder ? 1 : 0))
                 }
             }
         }
-        .padding(10)
-        .border(.gray, width: 1)
-        .margin(leftRight: 20)
+        .padding(1)
+        .border(.green, width: (withBorder ? 1 : 0))
      }
     
     /// Generate Roman numeral bullet list
@@ -225,7 +200,10 @@ struct MasterPageView: View {
     @ViewBuilder func romanNumeralList(prefix: String = "",
                                        listItemSpacing: CGFloat = 10.0,
                                        bulletWidth: CGFloat = 30.0,
-                                       alignment: Alignment = .leading) -> some View {
+                                       alignment: Alignment = .leading,
+                                       withBorder: Bool = false,
+                                       captionInfiniteWidth ciw: Bool = true
+    ) -> some View {
         VStack(alignment: .leading,
                spacing: listItemSpacing) {
             ForEach(sampleData.indices, id: \.self) { idx in
@@ -234,82 +212,267 @@ struct MasterPageView: View {
                     Text(stg)
                         .frame(width: bulletWidth,
                                alignment: alignment)
+                        .border(Color.blue,
+                                width: (withBorder ? 1 : 0))
                     Text(sampleData[idx])
+                        .frame(maxWidth: (ciw ? .infinity : nil),
+                               alignment: .leading)
+                        .border(Color.orange,
+                                width: (withBorder ? 1 : 0))
                 }
             }
         }
-        .padding(10)
-        .border(.gray, width: 1)
-        .margin(leftRight: 20)
+        .padding(1)
+        .border(.green, width: (withBorder ? 1 : 0))
     }
+
+}
+
+struct SimpleList: View, BaseView {
+    var withBorder: Bool
+    var textInfiniteWidth: Bool
+
+    init(withBorder: Bool = false,
+         setTextToInfiniteWidth: Bool = true) {
+        self.withBorder = withBorder
+        self.textInfiniteWidth = setTextToInfiniteWidth
+    }
+
+    var body: some View {
+        Text("Simple list")
+            .font(.title3)
+            .underline()
+
+        simpleList(withBorder: withBorder,
+                   captionInfiniteWidth: textInfiniteWidth)
+    }
+}
+
+struct SimpleBulletList: View, BaseView {
+    var withBorder: Bool
+    var textInfiniteWidth: Bool
+
+    init(withBorder: Bool = false,
+         setTextToInfiniteWidth: Bool = true) {
+        self.withBorder = withBorder
+        self.textInfiniteWidth = setTextToInfiniteWidth
+    }
+
+    var body: some View {
+        Text("Simple bullet list")
+            .font(.title3)
+            .underline()
+            .padding(top: 20)
+        
+        simpleBulletList(withBorder: withBorder,
+                         captionInfiniteWidth: textInfiniteWidth)
+    }
+}
+
+struct HappyFaceBulletList: View, BaseView {
+    var withBorder: Bool
+    var textInfiniteWidth: Bool
+
+    init(withBorder: Bool = false,
+         setTextToInfiniteWidth: Bool = true) {
+        self.withBorder = withBorder
+        self.textInfiniteWidth = setTextToInfiniteWidth
+    }
+
+    var body: some View {
+        Text("Happy face bullet list")
+            .font(.title3)
+            .underline()
+            .padding(top:20)
+        
+        simpleBulletList(leadIcon: "😀",
+                         withBorder: withBorder,
+                         captionInfiniteWidth: textInfiniteWidth)
+    }
+}
+
+struct AlignedBulletList1: View, BaseView {
+    var withBorder: Bool
+    var textInfiniteWidth: Bool
+
+    init(withBorder: Bool = false,
+         setTextToInfiniteWidth: Bool = true) {
+        self.withBorder = withBorder
+        self.textInfiniteWidth = setTextToInfiniteWidth
+    }
+
+    var body: some View {
+        Text("Properly aligned bullet list")
+            .font(.title3)
+            .underline()
+            .padding(top: 20)
+        
+        bulletList(withBorder: withBorder,
+                   captionInfiniteWidth: textInfiniteWidth)
+    }
+}
+
+struct AlignedBulletList2: View, BaseView {
+    var withBorder: Bool
+    var textInfiniteWidth: Bool
+
+    init(withBorder: Bool = false,
+         setTextToInfiniteWidth: Bool = true) {
+        self.withBorder = withBorder
+        self.textInfiniteWidth = setTextToInfiniteWidth
+    }
+
+    var body: some View {
+        Text("Happy faces bullet list with different indentation")
+            .font(.title3)
+            .underline()
+            .padding(top: 20)
+        
+        bulletList(leadIcon: "😀😀",
+                   bulletWidth: 50,
+                   withBorder: withBorder,
+                   captionInfiniteWidth: textInfiniteWidth)
+    }
+}
+
+struct NumericList1: View, BaseView {
+    var withBorder: Bool
+    var textInfiniteWidth: Bool
+
+    init(withBorder: Bool = false,
+         setTextToInfiniteWidth: Bool = true) {
+        self.withBorder = withBorder
+        self.textInfiniteWidth = setTextToInfiniteWidth
+    }
+
+    var body: some View {
+        Text("Numeric ordered list")
+            .font(.title3)
+            .underline()
+            .padding(top: 20)
+        
+        numericList(withBorder: withBorder,
+                    captionInfiniteWidth: textInfiniteWidth)
+    }
+}
+
+struct NumericList2: View, BaseView {
+    var withBorder: Bool
+    var textInfiniteWidth: Bool
+
+    init(withBorder: Bool = false,
+         setTextToInfiniteWidth: Bool = true) {
+        self.withBorder = withBorder
+        self.textInfiniteWidth = setTextToInfiniteWidth
+    }
+
+    var body: some View {
+        Text("Numeric ordered list with prefix")
+            .font(.title3)
+            .underline()
+            .padding(top: 20)
+        
+        numericList(prefix: "A.",
+                    withBorder: withBorder,
+                    captionInfiniteWidth: textInfiniteWidth)
+    }
+}
+
+struct RomanNumeralList1: View, BaseView {
+    var withBorder: Bool
+    var textInfiniteWidth: Bool
+
+    init(withBorder: Bool = false,
+         setTextToInfiniteWidth: Bool = true) {
+        self.withBorder = withBorder
+        self.textInfiniteWidth = setTextToInfiniteWidth
+    }
+
+    var body: some View {
+        Text("Roman numeral ordered list")
+            .font(.title3)
+            .underline()
+            .padding(top: 20)
+        
+        romanNumeralList(withBorder: withBorder,
+                         captionInfiniteWidth: textInfiniteWidth)
+    }
+}
+
+struct RomanNumeralList2: View, BaseView {
+    var withBorder: Bool
+    var textInfiniteWidth: Bool
+
+    init(withBorder: Bool = false,
+         setTextToInfiniteWidth: Bool = true) {
+        self.withBorder = withBorder
+        self.textInfiniteWidth = setTextToInfiniteWidth
+    }
+
+    var body: some View {
+        Text("Right align lead number ordered list")
+            .font(.title3)
+            .underline()
+            .padding(top: 20)
+        
+        romanNumeralList(alignment: .trailing,
+                         withBorder: withBorder,
+                         captionInfiniteWidth: textInfiniteWidth)
+    }
+}
+
+struct MasterPageView: View {
+    @State var withBorder: Bool = false
+    @State var toInfinity: Bool = true
     
     var body: some View {
-        ScrollView(.vertical, showsIndicators: true) {
-            VStack(alignment: .leading,
-                   spacing: 10) {
-                Group {
-                    Text("Simple list")
-                        .font(.title3)
-                    
-                    simpleList()
-                }
-                Group {
-                    Text("Simple bullet list")
-                        .font(.title3)
-                        .padding(top: 20)
-                    
-                    simpleBulletList()
-
-                    Text("Happy face bullet list")
-                        .font(.title3)
-                        .padding(top:20)
-                    
-                    simpleBulletList(leadIcon: "😀")
-                }
-                Group {
-                    Text("Properly aligned bullet list")
-                        .font(.title3)
-                        .padding(top: 20)
-                    
-                    alignedBulletList()
-
-                    Text("Happy faces bullet list with different indentation")
-                        .font(.title3)
-                        .padding(top: 20)
-                    
-                    alignedBulletList(leadIcon: "😀😀", bulletWidth: 50)
-                }
-                Group {
-                    Text("Numeric ordered list")
-                        .font(.title3)
-                        .padding(top: 20)
-                    numericList()
-                    
-                    Text("Numeric ordered list with prefix")
-                        .font(.title3)
-                        .padding(top: 20)
-                    numericList(prefix: "A.")
-                }
-                Group {
-                    Text("Roman numeral ordered list")
-                        .font(.title3)
-                        .padding(top: 20)
-                    romanNumeralList()
-                    
-                    Text("Right align lead number ordered list")
-                        .font(.title3)
-                        .padding(top: 20)
-                    romanNumeralList(alignment: .trailing)
-                }
-                
-                
-
+        Group {
+            VStack {
+                Toggle("Show border", isOn: $withBorder)
+                Toggle("Set Text maxWidth to infinity", isOn: $toInfinity)
             }
+            .padding(10)
+            .background(Color(UIColor(red: 0.9, green: 0.9, blue: 0.65, alpha: 1)))
+
+            ScrollView(.vertical, showsIndicators: true) {
+                VStack(alignment: .leading,
+                       spacing: 10) {
+                    Group {
+                        SimpleList(withBorder: withBorder,
+                                   setTextToInfiniteWidth: toInfinity)
+                    }
+                    Group {
+                        SimpleBulletList(withBorder: withBorder,
+                                         setTextToInfiniteWidth: toInfinity)
+                        HappyFaceBulletList(withBorder: withBorder,
+                                            setTextToInfiniteWidth: toInfinity)
+                    }
+                    Group {
+                        AlignedBulletList1(withBorder: withBorder,
+                                           setTextToInfiniteWidth: toInfinity)
+                        AlignedBulletList2(withBorder: withBorder,
+                                           setTextToInfiniteWidth: toInfinity)
+                    }
+                    Group {
+                        NumericList1(withBorder: withBorder,
+                                     setTextToInfiniteWidth: toInfinity)
+                        NumericList2(withBorder: withBorder,
+                                     setTextToInfiniteWidth: toInfinity)
+                    }
+                    Group {
+                        RomanNumeralList1(withBorder: withBorder,
+                                          setTextToInfiniteWidth: toInfinity)
+                        RomanNumeralList2(withBorder: withBorder,
+                                          setTextToInfiniteWidth: toInfinity)
+                    }
+                }
+            }
+            .frame(width: 292.5, // 390 pixels
+                   height: 633, // 844 pixels
+                   alignment: .leading)
+            .padding(10)
+
         }
-        .frame(width: 375,
-               height: 812,
-               alignment: .leading)
-        .padding(10)
     }
 }
 
