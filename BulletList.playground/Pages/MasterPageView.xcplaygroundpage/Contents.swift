@@ -14,9 +14,9 @@ extension View {
     ///   - left: Left padding in points. Default 0.0
     /// - Returns: Modified View
     func padding(top: CGFloat = 0.0,
-                right: CGFloat = 0.0,
-                bottom: CGFloat = 0.0,
-                left: CGFloat = 0.0) -> some View {
+                 right: CGFloat = 0.0,
+                 bottom: CGFloat = 0.0,
+                 left: CGFloat = 0.0) -> some View {
         self.padding(EdgeInsets(top: top,
                                 leading: left,
                                 bottom: bottom,
@@ -277,8 +277,6 @@ struct SimpleListView: View {
                 .padding(15)
             }
         }
-        .environmentObject(uiParams)
-        
     }
 }
 
@@ -418,7 +416,6 @@ struct OrderedListView: View {
                 .padding(15)
             }
         }
-        .environmentObject(uiParams)
     }
 }
 
@@ -458,7 +455,6 @@ struct RomanNumeralListView: View, RomanNumberProtocol {
                 .padding(15)
             }
         }
-        .environmentObject(uiParams)
     }
 }
 
@@ -526,7 +522,6 @@ struct UltimateListView: View, RomanNumberProtocol {
                 .padding(15)
             }
         }
-        .environmentObject(uiParams)
     }
 }
 
@@ -599,8 +594,10 @@ struct MasterPageView: View {
                 category.view
                     .navigationTitle(category.name)
                     .environmentObject(uiParams)
-            }).navigationTitle("Bullet/Ordered List")
+            })
+            .navigationTitle("Bullet/Ordered List")
         }
+        .environmentObject(router)
     }
 }
 
